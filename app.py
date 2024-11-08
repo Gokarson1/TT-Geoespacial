@@ -1,7 +1,9 @@
 import streamlit as st
+from PIL import Image
 
+img= Image.open("img/logo.png")
 # Configuración de la aplicación
-st.set_page_config(page_title="App de Visualización Geoespacial", page_icon="🌍")
+st.set_page_config(page_title="App de Visualización Geoespacial", page_icon=img)
 st.image("img/logo2.png", width=500)
 st.title("Bienvenido a la App de Visualización Geoespacial")
 
