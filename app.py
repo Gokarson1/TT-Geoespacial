@@ -9,7 +9,7 @@ st.title("Bienvenido a la App de Visualización Geoespacial")
 
 # Menú de navegación
 st.write("Selecciona una opción en el menú para navegar:")
-pages = ["Home", "Page 1", "Page 2"]  # Nombres de las páginas
+pages = ["Home", "wea 1", "wea 2"]  # Nombres de las páginas
 selection = st.selectbox("Navegar a:", pages)
 
 # Mostrar la página seleccionada
