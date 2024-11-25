@@ -1,75 +1,76 @@
 import streamlit as st
 import leafmap.foliumap as leafmap
+from io import BytesIO
 import geopandas as gpd
-import folium
-from shapely.geometry import Polygon
-import json
-from folium.plugins import Draw
+import zipfile
 from PIL import Image
 
 # Open the logo image
 img = Image.open("img/logo.png")
 
 # Set page configuration with icon
-st.set_page_config(page_title="Mapa interactivo", page_icon=img)
+st.set_page_config(layout="wide", page_icon=img)
 
-def app():
-    st.title("Mapa interactivo con capas y dibujo")
-    st.markdown(
-        """
-    Esta aplicación permite interactuar con mapas y cambiar entre diferentes capas como satélite, red fluvial o usos de suelos. Además, podrás trazar y exportar tus dibujos en formato GeoJSON.
+# Título de la aplicación
+st.title("Mapa Interactivo")
+st.sidebar.info(
     """
-    )
+    - Dibuje puntos, líneas o polígonos directamente en el mapa.
+    - Cambie las capas base.
+    - Exporte los datos como GeoJSON o shapefiles.
+    """
+)
+# Opciones de capas base
+basemaps = {
+    "Callejero": "OpenStreetMap",
+    "Satélite": "Esri.WorldImagery",
+    "Topográfico": "Esri.WorldTopoMap",
+    "Oscuro": "CartoDB.DarkMatter",
+}
 
-    # Crear columnas para las opciones de la izquierda y mapa de la derecha
-    row1_col1, row1_col2 = st.columns([3, 1])
-    width = 800
-    height = 600
-    tiles = None
+# Selección de capa base
+selected_basemap = st.sidebar.selectbox("Seleccionar capa base", list(basemaps.keys()))
 
-    # Panel de opciones en la columna de la izquierda
-    with row1_col2:
-        # Opción para cambiar entre capas
-        checkbox_satellite = st.checkbox("Capa Satelital")
-        checkbox_fluvial = st.checkbox("Red Fluvial")
-        checkbox_landuse = st.checkbox("Usos de Suelo")
+# Botón para exportar datos
+export_format = st.sidebar.radio("Formato de exportación", ["GeoJSON", "Shapefile"])
 
-        # Exportar a GeoJSON
-        export_geojson = st.button("Exportar a GeoJSON")
+# Título de la aplicación
+st.title("Herramienta de Mapa en Blanco")
 
-    # Crear el mapa en la columna de la derecha
-    with row1_col1:
-        m = leafmap.Map(center=[20, 0], zoom=2)
+# Crear un mapa interactivo
+m = leafmap.Map(tiles=basemaps[selected_basemap])
+m.add_draw_control()  # Agrega herramientas de dibujo al mapa
+m.add_measure_control()  # Agrega herramientas de medición
+st.markdown("### Mapa Interactivo")
+m.to_streamlit(height=600)
 
-        # Añadir capas basadas en las opciones seleccionadas
-        if checkbox_satellite:
-            m.add_basemap("SATELLITE")
-        if checkbox_fluvial:
-            m.add_basemap("Stamen Toner")
-        if checkbox_landuse:
-            m.add_basemap("OpenStreetMap")
+# Exportar datos dibujados
+if m.user_drawing:
+    st.sidebar.subheader("Exportar Datos")
+    st.sidebar.write("Visualice o exporte las geometrías dibujadas en el mapa.")
+    
+    # Convertir los datos a GeoDataFrame
+    gdf = gpd.GeoDataFrame.from_features(m.user_drawing, crs="EPSG:4326")
+    st.sidebar.write(gdf)
 
-        # Usar folium para agregar control de dibujo
-        draw = Draw(export=True)
-        draw.add_to(m)
-
-        # Mostrar el mapa
-        m.to_streamlit(height=height)
-
-        # Funcionalidad para exportar el dibujo como GeoJSON
-        if export_geojson:
-            geojson_data = m.get_drawings()
-            if geojson_data:
-                # Convertir GeoJSON a GeoDataFrame y exportar
-                try:
-                    geojson_obj = json.loads(geojson_data)
-                    gdf = gpd.GeoDataFrame.from_features(geojson_obj["features"])
-                    gdf.to_file("dibujo_exportado.geojson", driver="GeoJSON")
-                    st.success("Dibujo exportado como GeoJSON.")
-                except Exception as e:
-                    st.error(f"Error al procesar el GeoJSON: {e}")
-            else:
-                st.error("No hay dibujos para exportar.")
-
-# Ejecutar la aplicación
-app()
+    # Generar archivo para descarga
+    if export_format == "GeoJSON":
+        output = BytesIO()
+        gdf.to_file(output, driver="GeoJSON")
+        st.sidebar.download_button(
+            label="Descargar como GeoJSON",
+            data=output.getvalue(),
+            file_name="mapa_dibujado.geojson",
+            mime="application/json",
+        )
+    elif export_format == "Shapefile":
+        output = BytesIO()
+        with zipfile.ZipFile(output, mode="w") as zf:
+            for filename, content in gdf.to_file("/vsimem/temp_shapefile", driver="ESRI Shapefile"):
+                zf.writestr(filename, content)
+        st.sidebar.download_button(
+            label="Descargar como Shapefile",
+            data=output.getvalue(),
+            file_name="mapa_dibujado.zip",
+            mime="application/zip",
+        )
