@@ -8,13 +8,12 @@ from folium import LayerControl
 from PIL import Image
 
 # Open the logo image
-img = Image.open("img/logo2.png")
+img = Image.open("img/logo.png")
 
 # Set page configuration with icon
 st.set_page_config(page_title="Página de Visualización de Datos", page_icon=img)
 
-# Display the logo image at the very top
-st.image(img, width=500)  # Adjust width as needed
+
 
 # Header for the data upload section
 st.header("Sube un archivo de datos geoespaciales para visualizar.")

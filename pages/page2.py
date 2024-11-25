@@ -8,7 +8,7 @@ img= Image.open("img/logo.png")
 
 # Cargar los datos geoespaciales
 
-st.set_page_config(page_title="Mapa de Yacimientos Mineros en Chile", layout="wide")
+st.set_page_config(page_title="Mapa de Yacimientos Mineros en Chile", page_icon=img)
 # Configuración básica de Streamlit
 st.title("Visualización de Yacimientos Mineros en Chile")
 st.write("Este mapa muestra yacimientos mineros en Chile.")

@@ -1,8 +1,11 @@
 import streamlit as st
 import leafmap.foliumap as leafmap
 import pandas as pd
+from PIL import Image
 
-st.set_page_config(layout="wide")
+img= Image.open("img/logo.png")
+
+st.set_page_config(layout="wide", page_icon=img)
 
 st.title("Poblacion en el Mundo")
 

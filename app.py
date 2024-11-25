@@ -40,3 +40,5 @@ elif selection == "Page 3":
     import pages.page3
 elif selection == "analisis geoespacial":
     import pages.page7
+elif selection == "analisis geoespacial":
+    import pages.page8
