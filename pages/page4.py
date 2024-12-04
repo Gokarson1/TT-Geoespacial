@@ -1,38 +1,46 @@
 import streamlit as st
-import pandas as pd
+from PIL import Image
+import folium
+from streamlit_folium import st_folium
+import json  # Para manejar los datos GeoJSON
 
-st.set_page_config(layout="wide")
+# Cargar el logo
+img = Image.open("img/logo.png")
 
-st.title("Datos Geoespaciales de Chile")
+# Configuración de la página
+st.set_page_config(page_title="Mapa de Yacimientos Mineros en Chile", page_icon=img)
+st.title("Visualización de Yacimientos Mineros en Chile")
+st.write("Sube un archivo GeoJSON para visualizar los yacimientos en el mapa interactivo:")
 
-# Subir archivo CSV
-uploaded_file = st.file_uploader("Cargar archivo CSV", type=["csv"])
+# Campo para subir archivo GeoJSON
+uploaded_file = st.file_uploader("Selecciona tu archivo GeoJSON", type="geojson")
 
-if uploaded_file is not None:
-    # Leer el archivo CSV con el delimitador ';'
-    data = pd.read_csv(uploaded_file, delimiter=';')
+# Procesar el archivo GeoJSON y mostrar el mapa
+if uploaded_file:
+    try:
+        # Leer y cargar el contenido del archivo GeoJSON
+        geojson_data = json.load(uploaded_file)
 
-    # Filtrar las columnas importantes
-    columns_of_interest = [
-        'region', 'cod_nodo', 'nombre_nodo', 'altura sig espectral (m)',
-        'Período de cruces por cero. Equivalente a T0,2 (seg.)', 'Período energético del oleaje (seg)',
-        'Período medio del oleaje. Equivalente a T0,1 (seg)', 'Período pico del oleaje (seg)',
-        'Dirección media del oleaje (°)', 'Dirección pico del oleaje(°)', 'Ancho espectral',
-        'Ancho de banda espectral', 'Agudeza de pico del espectro', 'Parámetro de acentuación del máximo espectral',
-        'Parámetro de dispersión direccional del oleaje', 'año', 'fecha'
-    ]
-    data = data[columns_of_interest]
+        # Crear el mapa base centrado en Chile
+        chile_map = folium.Map(location=[-35.6751, -71.543], zoom_start=5)
 
-    # Mostrar análisis descriptivo
-    st.header("Análisis Descriptivo")
-    st.write(data.describe())
+        # Añadir los datos GeoJSON al mapa
+        folium.GeoJson(
+            geojson_data,
+            name="Yacimientos Mineros",
+            style_function=lambda x: {
+                "fillColor": "orange",
+                "color": "red",
+                "weight": 2,
+                "fillOpacity": 0.5,
+            },
+        ).add_to(chile_map)
 
-    # Selección de columnas para visualizar
-    x_column = st.selectbox("Selecciona la columna para el eje X", data.columns)
-    y_column = st.selectbox("Selecciona la columna para el eje Y", data.columns)
+        # Mostrar el mapa interactivo
+        st.write("Mapa interactivo de los yacimientos mineros:")
+        st_folium(chile_map, width=700, height=500)
 
-    # Mostrar gráfico de dispersión usando Streamlit
-    st.header(f"Gráfico de {x_column} vs {y_column}")
-    st.line_chart(data[[x_column, y_column]].set_index(x_column))
+    except Exception as e:
+        st.error(f"Hubo un problema al procesar el archivo GeoJSON: {e}")
 else:
-    st.info("Por favor, sube un archivo CSV.")
+    st.info("Por favor, sube un archivo GeoJSON para comenzar.")
