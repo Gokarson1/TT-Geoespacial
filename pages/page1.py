@@ -1,79 +1,123 @@
 import streamlit as st
 import geopandas as gpd
 import pandas as pd
-import folium
-from streamlit_folium import st_folium
-from folium import LayerControl
-from PIL import Image
+import json
+import streamlit.components.v1 as components
 
-# Open the logo image
-img = Image.open("img/logo.png")
+# Configuración de la página
+st.set_page_config(page_title="Visualización de Datos Geoespaciales")
 
-# Set page configuration with icon
-st.set_page_config(page_title="Visualización de Datos Geoespaciales", page_icon=img)
-
-
-
-# Sidebar navigation
+# Sidebar para navegación
 st.sidebar.header("Navegación")
 page = st.sidebar.radio("Selecciona la página", ["Shapefile", "CSV"])
 
-# Map base selection in sidebar
+# Selección de mapa base
 st.sidebar.header("Seleccione el mapa base")
 map_base = st.sidebar.selectbox(
     "Mapa base", ["OpenStreetMap", "Stamen Terrain", "Stamen Toner", "Stamen Watercolor"]
 )
 
-# Function for creating base map with chosen tiles
-def create_base_map(map_base_type):
-    if map_base_type == "OpenStreetMap":
-        return folium.Map(location=[0, 0], zoom_start=2, tiles="OpenStreetMap")
-    elif map_base_type == "Stamen Terrain":
-        return folium.Map(location=[0, 0], zoom_start=2, tiles="Stamen Terrain")
-    elif map_base_type == "Stamen Toner":
-        return folium.Map(location=[0, 0], zoom_start=2, tiles="Stamen Toner")
-    elif map_base_type == "Stamen Watercolor":
-        return folium.Map(location=[0, 0], zoom_start=2, tiles="Stamen Watercolor")
+# Generador de código HTML + JavaScript para Leaflet
+def render_map_js(map_base, geojson_data=None, markers=None):
+    tiles_dict = {
+        "OpenStreetMap": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        "Stamen Terrain": "https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg",
+        "Stamen Toner": "https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png",
+        "Stamen Watercolor": "https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg"
+    }
+    tile_url = tiles_dict[map_base]
 
-# Function to load and visualize ShapeFiles
-def load_shapefile(shapefile_path, base_map):
-    gdf = gpd.read_file(shapefile_path)
-    folium.GeoJson(gdf).add_to(base_map)
+    geojson_script = f"""
+    var geojsonData = {json.dumps(geojson_data)};
+    try {{
+        var geojson = L.geoJSON(geojsonData).addTo(map);
+        map.fitBounds(geojson.getBounds());  // Ajustar el mapa a los datos
+    }} catch (error) {{
+        console.error("Error al renderizar el GeoJSON:", error);
+    }}
+    """ if geojson_data else ""
 
-# Function to load and visualize CSV with coordinates
-def load_csv(csv_path, base_map):
-    try:
-        # Load the CSV file with semicolon as delimiter
-        df = pd.read_csv(csv_path, delimiter=';')
-        if "latitude" in df.columns and "longitude" in df.columns:
-            for _, row in df.iterrows():
-                folium.Marker(
-                    location=[row["latitude"], row["longitude"]],
-                    popup=row["name"] if "name" in df.columns else None
-                ).add_to(base_map)
-        else:
-            st.error("El archivo CSV no contiene las columnas 'latitude' y 'longitude'.")
-    except Exception as e:
-        st.error(f"No se pudo cargar el archivo CSV: {e}")
 
-# Página Shapefile
+    marker_script = ""
+    if markers:
+        for marker in markers:
+            lat, lon, popup = marker
+            marker_script += f"""
+                L.marker([{lat}, {lon}]).addTo(map).bindPopup("{popup}");
+            """
+
+    # Código JavaScript para renderizar el mapa
+    map_code = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+        <style>
+            #map {{
+                height: 500px;
+                width: 100%;
+            }}
+        </style>
+    </head>
+    <body>
+        <div id="map"></div>
+        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+        <script>
+            var map = L.map('map').setView([0, 0], 2);
+            L.tileLayer('{tile_url}', {{
+                maxZoom: 18,
+            }}).addTo(map);
+
+            {geojson_script}
+            {marker_script}
+        </script>
+    </body>
+    </html>
+    """
+    return map_code
+
+# Mostrar las páginas
 if page == "Shapefile":
     st.header("Sube un archivo ShapeFile para visualizar.")
-    shapefile_upload = st.file_uploader("Subir archivo ShapeFile (.shp, .shx, .dbf)", type=["zip"])
-    base_map = create_base_map(map_base)
+    shapefile_upload = st.file_uploader("Subir archivo Shapefile (.zip)", type=["zip"])
+    geojson_data = None
+
     if shapefile_upload:
         with open("temp.zip", "wb") as f:
             f.write(shapefile_upload.getbuffer())
-        load_shapefile("temp.zip", base_map)
-    LayerControl().add_to(base_map)
-    st_folium(base_map, width=700, height=500)
+        
+        # Procesar Shapefile y convertir a GeoJSON
+        try:
+            gdf = gpd.read_file("temp.zip")
+            if not gdf.is_valid.all():
+                gdf = gdf.buffer(0)  # Intentar reparar geometrías
+            geojson_data = json.loads(gdf.to_json())
+            #st.json(geojson_data)
 
-# Página CSV
+            st.success("Shapefile cargado correctamente.")
+        except Exception as e:
+            st.error(f"Error al procesar el archivo Shapefile: {e}")
+
+    components.html(render_map_js(map_base, geojson_data=geojson_data), height=550)
+
 elif page == "CSV":
     st.header("Sube un archivo CSV con coordenadas para visualizar.")
     csv_upload = st.file_uploader("Subir archivo CSV", type=["csv"])
-    base_map = create_base_map(map_base)
+    markers = []
+
     if csv_upload:
-        load_csv(csv_upload, base_map)
-    LayerControl().add_to(base_map)
-    st_folium(base_map, width=700, height=500)
+        try:
+            # Leer CSV con delimitador ';'
+            df = pd.read_csv(csv_upload, delimiter=';')
+            if "lat" in df.columns and "lon" in df.columns:
+                # Generar lista de marcadores
+                for _, row in df.iterrows():
+                    popup = row["nombre_nodo"] if "nombre_nodo" in df.columns else "Sin nombre"
+                    markers.append((row["lat"], row["lon"], popup))
+                st.success("CSV cargado correctamente.")
+            else:
+                st.error("El archivo CSV debe contener columnas 'lat' y 'lon'.")
+        except Exception as e:
+            st.error(f"No se pudo procesar el archivo CSV: {e}")
+
+    components.html(render_map_js(map_base, markers=markers), height=550)
