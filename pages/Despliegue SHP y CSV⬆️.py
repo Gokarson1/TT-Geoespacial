@@ -3,9 +3,15 @@ import geopandas as gpd
 import pandas as pd
 import json
 import streamlit.components.v1 as components
+from PIL import Image
 
+img = Image.open("img/logo.png")
 # Configuración de la página
-st.set_page_config(page_title="Visualización de Datos Geoespaciales")
+st.set_page_config(page_title=
+     "Visualización de Datos Geoespaciales" ,
+     layout="wide",
+     page_icon=img
+    )
 
 # Sidebar para navegación
 st.sidebar.header("Navegación")

@@ -67,86 +67,108 @@ map_code = """
 <body>
     <div class="map-container">
         <div id="map"></div>
+        <!-- Botón para descargar el archivo GeoJSON -->
         <button class="download-btn" onclick="downloadGeoJSON()">Descargar GeoJSON</button>
     </div>
 
-    <script>
-        // Inicializar el mapa
-        var map = L.map('map').setView([0, 0], 2);
-        
-        // Añadir capa base de OpenStreetMap
-        var osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-        }).addTo(map);
+<script>
+    // Inicializar un FeatureCollection vacío para almacenar las formas dibujadas
+    window.geojsonData = {
+        type: "FeatureCollection",
+        features: [] // Este array contendrá todas las formas en formato GeoJSON
+    };
 
-        // Capa de OpenTopoMap (mapa topográfico)
-        var topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-            maxZoom: 17,
-        });
+    // Crear el mapa y centrarlo en las coordenadas [0, 0] con un nivel de zoom de 2
+    var map = L.map('map').setView([0, 0], 2);
 
-        // Capa de Satélite (Satélite ESRI)
-        var satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            maxZoom: 18,
-        });
+    // Añadir capa base de OpenStreetMap
+    var osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19
+    }).addTo(map);
 
-        // Capa de Clima (OpenWeatherMap)
-        var weatherLayer = L.tileLayer('https://{s}.tile.openweathermap.org/map/{layer}/{z}/{x}/{y}.png?appid=4ddfe4a7886cf75ff86a1cfbc537f255', {
-            attribution: '&copy; <a href="https://openweathermap.org">OpenWeatherMap</a>',
-            maxZoom: 19,
-            layer: 'temp_new'  // Puede cambiarse por otros tipos de clima como 'precipitation_new', 'clouds_new', etc.
-        });
+    // Capa de mapa topográfico
+    var topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        maxZoom: 17
+    });
 
-        // Añadir control de capas
-        var baseLayers = {
-            "OpenStreetMap": osmLayer,
-            "Mapa Topográfico": topoLayer,
-            "Satélite": satelliteLayer,
-            "Clima": weatherLayer
-        };
+    // Capa de satélite
+    var satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 18
+    });
 
-        // Añadir control de capas al mapa
-        L.control.layers(baseLayers).addTo(map);
+    // Capa de clima (cambio según necesidad: precipitación, temperatura, etc.)
+    var weatherLayer = L.tileLayer('https://{s}.tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=4ddfe4a7886cf75ff86a1cfbc537f255', {
+        attribution: '&copy; <a href="https://openweathermap.org">OpenWeatherMap</a>',
+        maxZoom: 19
+    });
 
-        // Inicializar herramientas de dibujo
-        var drawnItems = new L.FeatureGroup();
-        map.addLayer(drawnItems);
+    // Control de capas para seleccionar entre diferentes vistas
+    var baseLayers = {
+        "OpenStreetMap": osmLayer,
+        "Mapa Topográfico": topoLayer,
+        "Satélite": satelliteLayer,
+        "Clima (Temperatura)": weatherLayer
+    };
+    L.control.layers(baseLayers).addTo(map);
 
-        var drawControl = new L.Control.Draw({
-            edit: {
-                featureGroup: drawnItems,
-            },
-            draw: {
-                polygon: true,
-                polyline: true,
-                rectangle: true,
-                circle: true,
-                marker: true,
-            },
-        });
-        map.addControl(drawControl);
+    // Crear un grupo para almacenar las formas dibujadas
+    var drawnItems = new L.FeatureGroup();
+    map.addLayer(drawnItems);
 
-        // Manejar eventos de creación de formas
-        map.on(L.Draw.Event.CREATED, function (e) {
-            var layer = e.layer;
-            drawnItems.addLayer(layer);
-            
-            // Convertir la forma a GeoJSON y actualizar un archivo GeoJSON global
-            var geojson = layer.toGeoJSON();
-            // Actualiza la variable 'geojsonData' con el objeto GeoJSON
-            window.geojsonData = geojson;
-        });
-
-        // Función para descargar el archivo GeoJSON
-        function downloadGeoJSON() {
-            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(window.geojsonData));
-            var downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "mapa_dibujo.geojson");
-            downloadAnchorNode.click();
+    // Configuración del control de dibujo
+    var drawControl = new L.Control.Draw({
+        edit: {
+            featureGroup: drawnItems, // Permite editar las formas existentes
+        },
+        draw: {
+            polygon: true,   // Permitir polígonos
+            polyline: true,  // Permitir líneas
+            rectangle: true, // Permitir rectángulos
+            circle: true,    // Permitir círculos
+            marker: true     // Permitir marcadores
         }
-    </script>
+    });
+    map.addControl(drawControl);
+
+    // Evento al crear una nueva forma
+    map.on(L.Draw.Event.CREATED, function (e) {
+        var layer = e.layer; // Obtener la capa recién dibujada
+        drawnItems.addLayer(layer); // Añadir la capa al mapa
+
+        // Convertir la forma a GeoJSON y añadirla al FeatureCollection
+        var newGeoJSON = layer.toGeoJSON();
+        window.geojsonData.features.push(newGeoJSON);
+
+        // Opcional: Mostrar información en la consola
+        console.log("Nueva forma añadida:", newGeoJSON);
+    });
+
+    // Función para descargar todas las formas como un archivo GeoJSON
+    function downloadGeoJSON() {
+        if (window.geojsonData.features.length === 0) {
+            alert("No hay datos para descargar.");
+            return;
+        }
+        // Crear el archivo GeoJSON en formato de texto
+        var geojsonText = JSON.stringify(window.geojsonData, null, 2); // Formateado para mayor legibilidad
+        var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(geojsonText);
+
+        // Crear un enlace temporal para descargar el archivo
+        var downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "mapa_dibujo.geojson");
+        document.body.appendChild(downloadAnchorNode); // Añadir al DOM (necesario para Firefox)
+        downloadAnchorNode.click(); // Simular el clic para descargar
+        downloadAnchorNode.remove(); // Limpiar el DOM
+    }
+
+    // Ejemplo: Vincular el botón de descarga al script
+    document.querySelector('.download-btn').addEventListener('click', downloadGeoJSON);
+</script>
+
 </body>
 </html>
+
 """
 
 # Integrar el mapa interactivo en Streamlit
