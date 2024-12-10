@@ -10,25 +10,25 @@ st.set_page_config(
     layout="wide",
     page_icon=img
 )
+
 # Sidebar para seleccionar mapa base
 st.sidebar.header("Configuración del mapa")
 map_base = st.sidebar.selectbox(
     "Seleccione el mapa base",
-    ["OpenStreetMap", "Stamen Terrain", "Stamen Toner", "Stamen Watercolor"]
+    ["OpenStreetMap", "OpenTopoMap", "Esri World Imagery"]
 )
 
 # Generador de código HTML + JavaScript para Leaflet
 def render_map_js(map_base, geojson_data):
     tiles_dict = {
         "OpenStreetMap": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        "Stamen Terrain": "https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg",
-        "Stamen Toner": "https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png",
-        "Stamen Watercolor": "https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg"
+        "OpenTopoMap": "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",  # Nueva capa
+        "Esri World Imagery": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"  # Nueva capa
     }
     tile_url = tiles_dict[map_base]
 
     geojson_script = f"""
-    var geojsonData = {json.dumps(geojson_data)};
+    var geojsonData = {json.dumps(geojson_data)}; 
     try {{
         var geojson = L.geoJSON(geojsonData).addTo(map);
         map.fitBounds(geojson.getBounds());
@@ -57,7 +57,7 @@ def render_map_js(map_base, geojson_data):
             L.tileLayer('{tile_url}', {{
                 maxZoom: 18,
             }}).addTo(map);
-
+            
             {geojson_script}
         </script>
     </body>
