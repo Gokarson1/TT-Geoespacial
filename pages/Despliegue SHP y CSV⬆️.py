@@ -60,7 +60,7 @@ def render_map_js(map_base, geojson_data=None, markers=None):
         <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
         <style>
             #map {{
-                height: 500px;
+                height: 800px;
                 width: 100%;
             }}
         </style>

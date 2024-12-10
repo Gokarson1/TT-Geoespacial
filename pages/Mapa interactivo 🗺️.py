@@ -29,6 +29,9 @@ map_code = """
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css" />
+    <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.min.js"></script>
+
     <style>
         /* Estilos para el mapa */
         #map {
@@ -126,6 +129,7 @@ map_code = """
             rectangle: true, // Permitir rectángulos
             circle: true,    // Permitir círculos
             marker: true     // Permitir marcadores
+            
         }
     });
     map.addControl(drawControl);
