@@ -64,3 +64,12 @@ if uploaded_file:
         st.error("El archivo no contiene las columnas requeridas: latitude, longitude, height, building_name.")
 else:
     st.info("Por favor, sube un archivo CSV para comenzar.")
+# Manual de uso CSV
+    st.markdown("""
+    ### Manual de uso
+    - **Sube un archivo geojson para la carga de datos.**
+    - Asegúrate de que el geojson sea válido.
+    - Una vez cargado, el mapa desplegará visualización 3D, del geojson ingresado.
+                
+    :red[*Cabe recalcar que el mapa carga un archivo como demostración, la subida de archivos es opcional.*]
+    """)

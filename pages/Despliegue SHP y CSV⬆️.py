@@ -18,18 +18,17 @@ st.sidebar.header("Navegación")
 page = st.sidebar.radio("Selecciona la página", ["Shapefile", "CSV"])
 
 # Selección de mapa base
-#st.sidebar.header("Seleccione el mapa base")
-#map_base = st.sidebar.selectbox(
-#    "Mapa base", ["OpenStreetMap", "Stamen Terrain", "Stamen Toner", "Stamen Watercolor"]
-#)
-map_base="OpenStreetMap" #Borrar esto y descomentar arriba para seleccion de mapa
+st.sidebar.header("Seleccione el mapa base")
+map_base = st.sidebar.selectbox(
+    "Seleccione el mapa base",
+    ["OpenStreetMap", "OpenTopoMap", "Esri World Imagery"]
+)
 # Generador de código HTML + JavaScript para Leaflet
 def render_map_js(map_base, geojson_data=None, markers=None):
     tiles_dict = {
         "OpenStreetMap": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        "Stamen Terrain": "https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg",
-        "Stamen Toner": "https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png",
-        "Stamen Watercolor": "https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg"
+        "OpenTopoMap": "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",  # Nueva capa
+        "Esri World Imagery": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"  # Nueva capa
     }
     tile_url = tiles_dict[map_base]
 
