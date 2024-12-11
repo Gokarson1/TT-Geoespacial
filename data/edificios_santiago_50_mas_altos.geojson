@@ -1,0 +1,181 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Gran Torre Santiago",
+                "city": "Santiago",
+                "height_m": 300,
+                "type": "N/A"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -70.6459,
+                    -33.416
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Torre Titanium La Portada",
+                "city": "Santiago",
+                "height_m": 192,
+                "type": "N/A"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -70.6483,
+                    -33.4156
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Hotel Marriott Santiago",
+                "city": "Santiago",
+                "height_m": 150,
+                "type": "N/A"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -70.5435,
+                    -33.4024
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Torre Puerto Montt",
+                "city": "Puerto Montt",
+                "height_m": 150,
+                "type": "N/A"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -72.9372,
+                    -41.4721
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Torre Telefónica Chile",
+                "city": "Santiago",
+                "height_m": 143,
+                "type": "N/A"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -70.6505,
+                    -33.4389
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Torre Los Leones",
+                "city": "Santiago",
+                "height_m": 86,
+                "type": "N/A"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -70.6132,
+                    -33.4266
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Edificio El Golf 150",
+                "city": "Santiago",
+                "height_m": 150,
+                "type": "Oficinas"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -70.5847,
+                    -33.4035
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Torre Santa María",
+                "city": "Santiago",
+                "height_m": 135,
+                "type": "Oficinas"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -70.6645,
+                    -33.424
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Isidora 3000",
+                "city": "Santiago",
+                "height_m": 120,
+                "type": "Oficinas"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -70.6016,
+                    -33.4161
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Boulevard Kennedy",
+                "city": "Santiago",
+                "height_m": 110,
+                "type": "Residencial"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -70.5741,
+                    -33.4019
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Torre Vitacura",
+                "city": "Santiago",
+                "height_m": 105,
+                "type": "Residencial"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -70.5831,
+                    -33.4006
+                ]
+            }
+        }
+    ]
+}
