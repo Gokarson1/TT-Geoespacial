@@ -1,0 +1,190 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Parque Forestal",
+                "type": "Parque",
+                "size_ha": 12
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -70.6355,
+                            -33.4369
+                        ],
+                        [
+                            -70.6315,
+                            -33.4369
+                        ],
+                        [
+                            -70.6315,
+                            -33.434
+                        ],
+                        [
+                            -70.6355,
+                            -33.434
+                        ],
+                        [
+                            -70.6355,
+                            -33.4369
+                        ]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "La Moneda",
+                "type": "Monumento Histórico"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -70.6483,
+                    -33.4449
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Estación Baquedano",
+                "type": "Estación de Metro",
+                "line": "1 y 5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -70.6351,
+                    -33.4376
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Cerro San Cristóbal",
+                "type": "Cerro",
+                "height_m": 880
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -70.6317,
+                    -33.415
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Río Mapocho",
+                "type": "Río"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        -70.6782,
+                        -33.4178
+                    ],
+                    [
+                        -70.6612,
+                        -33.4235
+                    ],
+                    [
+                        -70.6345,
+                        -33.4345
+                    ],
+                    [
+                        -70.6,
+                        -33.4455
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Parque Nacional Río Clarillo",
+                "type": "Área Protegida",
+                "size_ha": 13305
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -70.5,
+                            -33.8
+                        ],
+                        [
+                            -70.49,
+                            -33.8
+                        ],
+                        [
+                            -70.49,
+                            -33.79
+                        ],
+                        [
+                            -70.5,
+                            -33.79
+                        ],
+                        [
+                            -70.5,
+                            -33.8
+                        ]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Hospital Clínico Universidad de Chile",
+                "type": "Hospital",
+                "capacity_beds": 800
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -70.6345,
+                    -33.441
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Universidad de Chile",
+                "type": "Universidad"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -70.6495,
+                    -33.4513
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Comisaría Santiago Centro",
+                "type": "Comisaría"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -70.6553,
+                    -33.4501
+                ]
+            }
+        }
+    ]
+}
