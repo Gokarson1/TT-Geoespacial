@@ -24,7 +24,7 @@ st.sidebar.info(
     """
 )
 st.sidebar.image(img, width=150)  # Display image in the sidebar
-st.image("img/logo2.png", width=900)
+st.image("img/logo2.png", width=700)
 st.title(":gray[_Bienvenido a_] :rainbow[_GeoHub_]")
 st.markdown("""
     La ***App de Visualización Geoespacial*** permite explorar y analizar datos geoespaciales de manera interactiva. 
