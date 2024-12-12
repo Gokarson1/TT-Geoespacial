@@ -9,105 +9,125 @@ img = Image.open("img/logo.png")
 
 # Configuración de la página
 st.set_page_config(
-    page_title="Mapa de Yacimientos Mineros en Chile",
+    page_title="Geojson con busqueda por campos",
     layout="wide",
     page_icon=img
 )
 
-st.title("Visualización de Yacimientos Mineros en Chile")
-st.write("""Esta página permite explorar los **yacimientos mineros de Chile** a través de un mapa interactivo. Este visualizador interactivo tiene como objetivo proporcionar una forma sencilla de visualizar la distribución de los yacimientos mineros en Chile. Puede ser útil para análisis geoespaciales, investigaciones sobre la minería en Chile y toma de decisiones basadas en datos geográficos.""")
+st.title("**Visualización de geojson con posibilidad de filtrar**")
+st.write("""Esta página permite desplegar gejsjon a través de un mapa interactivo permitiendo busquedas en Python. También puedes cargar tu propio archivo GeoJSON para realizar búsquedas y visualizaciones personalizadas.""")
 
-# Cargar el archivo GeoJSON
-try:
-    with open('data/Yacimientos Mineros.geojson', 'r', encoding='utf-8-sig') as file:
-        geojson_data = json.load(file)
+# Instrucciones
+with st.expander("Manual de Uso"):
+    st.write("""
+    ### Visualización base:
+    - Muestra los yacimientos mineros en Chile por defecto.
+    - Puedes realizar búsquedas avanzadas con múltiples condiciones.
 
-    # Cargar datos como DataFrame
-    df = pd.json_normalize(geojson_data['features'])
-    df = df.rename(columns=lambda x: x.replace('properties.', ''))  # Simplificar nombres de columnas
+    ### Filtros avanzados:
+    - **Formato básico**: `filter campo='valor'`
+    - **Múltiples valores (OR)**: `filter comuna='Puente Alto' || 'La Florida'`
+    - **Todos los registros**: `filter all`
+    """)
 
-    # Entrada del usuario para el filtro
-    st.subheader("Escribe una consulta para filtrar los yacimientos")
-    query = st.text_area("Consulta", value="filter all")
+# Función para procesar el GeoJSON
+def process_geojson(geojson_data, query):
+    try:
+        # Cargar datos como DataFrame
+        df = pd.json_normalize(geojson_data['features'])
+        df = df.rename(columns=lambda x: x.replace('properties.', ''))  # Simplificar nombres de columnas
 
-    # Filtrado basado en la consulta
-    if query.startswith("filter"):
-        try:
-            # Manejo especial para 'all'
+        # Filtrado basado en la consulta
+        if query.startswith("filter"):
             if query.strip() == "filter all":
-                filtered_geojson = geojson_data  # Mostrar todos los datos
+                return geojson_data  # Mostrar todos los datos
             else:
-                # Extraer el campo y valor del filtro
-                field, value = query.replace("filter", "").strip().split("=")
-                field, value = field.strip(), value.strip().strip("'\"")
+                # Extraer el campo y valores del filtro
+                field_values = query.replace("filter", "").strip()
+                field, values = field_values.split("=")
+                field = field.strip()
+                values = [v.strip().strip("'\"") for v in values.split("||")]
 
                 # Verificar si el campo existe
                 if field in df.columns:
-                    # Filtrar el DataFrame
-                    filtered_df = df[df[field] == value]
-
-                    # Reconstruir el GeoJSON filtrado
-                    filtered_geojson = {
+                    filtered_df = df[df[field].isin(values)]
+                    return {
                         "type": "FeatureCollection",
                         "features": [geojson_data['features'][i] for i in filtered_df.index],
                     }
                 else:
                     st.error(f"El campo '{field}' no existe en los datos.")
-                    filtered_geojson = None
+                    return None
+        else:
+            st.write("Escribe una consulta válida que comience con `filter`.")
+            return None
+    except Exception as e:
+        st.error(f"Error al procesar la consulta: {e}")
+        return None
 
-            # Crear la capa de mapa con los datos filtrados o completos
-            if filtered_geojson:
-                geojson_layer = pdk.Layer(
-                    "GeoJsonLayer",
-                    filtered_geojson,
-                    pickable=True,
-                    stroked=True,
-                    filled=True,
-                    get_radius=500,
-                    point_radius_min_pixels=3,  # Tamaño mínimo visible en pantalla
-                    get_fill_color="[255, 140, 0, 180]",
-                    get_line_color="[255, 0, 0, 200]",
-                )
-
-                # Configuración del mapa centrado en Chile
-                view_state = pdk.ViewState(
-                    latitude=-35.6751,
-                    longitude=-71.543,
-                    zoom=5,
-                    pitch=0,
-                )
-
-                # Crear el mapa con pydeck
-                r = pdk.Deck(
-                    layers=[geojson_layer],
-                    initial_view_state=view_state,
-                    tooltip={"text": "{nombre}"},
-                )
-
-                # Mostrar el mapa
-                st.pydeck_chart(r)
-
-        except Exception as e:
-            st.error(f"Error al procesar la consulta: {e}")
-    else:
-        st.write("Escribe una consulta válida que comience con `filter`.")
-
+# Cargar archivo GeoJSON por defecto
+try:
+    with open('data/Yacimientos Mineros.geojson', 'r', encoding='utf-8-sig') as file:
+        base_geojson = json.load(file)
 except Exception as e:
-    st.error(f"Hubo un problema al cargar el archivo GeoJSON: {e}")
+    st.error(f"Hubo un problema al cargar la base de datos de Yacimientos Mineros: {e}")
+    base_geojson = None
 
+# Selector para elegir la fuente de datos
+st.subheader("Seleccionar la fuente de datos")
+data_source = st.radio(
+    "Elige la fuente de datos:",
+    ("Base de Yacimientos Mineros", "Cargar archivo GeoJSON personalizado")
+)
 
+# Inicializar GeoJSON
+geojson_data = None
 
-# Instrucciones debajo del mapa
-with st.expander("Manual de Uso: Filtro de Yacimientos Mineros"):
-    st.write("""
-    Esta sección describe cómo interactuar con el sistema para consultar y visualizar yacimientos mineros en Chile.
+if data_source == "Base de Yacimientos Mineros" and base_geojson:
+    geojson_data = base_geojson
+elif data_source == "Cargar archivo GeoJSON personalizado":
+    uploaded_file = st.file_uploader("Sube tu archivo GeoJSON", type=["geojson"])
+    if uploaded_file:
+        try:
+            geojson_data = json.load(uploaded_file)
+        except Exception as e:
+            st.error(f"Error al cargar el archivo: {e}")
 
-    Ejemplos de consulta:
-    - `filter campo='valor'`: Filtra por el campo y valor especificado. Por ejemplo, `filter grupo_recu='Cu'`.         
-    - `filter all`: Muestra todos los yacimientos.
-    - `filter region='Región de Atacama'`: Muestra todos los yacimientos de esa región.
-    - `filter comuna='San José de Maipo'`: Muestra todos los yacimientos de esa región.
+# Aplicar filtros y mostrar el mapa
+if geojson_data:
+    query = st.text_area("Escribe una consulta para filtrar los datos", value="filter all")
+    filtered_geojson = process_geojson(geojson_data, query)
 
-    Asegúrate de que el campo y el valor sean correctos y estén presentes en los datos, hay que tener en cuenta las mayusculas y minusculas.
-    """)
-    
+    if filtered_geojson:
+        # Crear la capa de mapa con los datos filtrados
+        geojson_layer = pdk.Layer(
+            "GeoJsonLayer",
+            filtered_geojson,
+            pickable=True,
+            stroked=True,
+            filled=True,
+            get_radius=500,
+            point_radius_min_pixels=3,
+            get_fill_color="[255, 140, 0, 180]",
+            get_line_color="[255, 0, 0, 200]",
+        )
+
+        # Configuración del mapa centrado en Chile
+        view_state = pdk.ViewState(
+            latitude=-35.6751,
+            longitude=-71.543,
+            zoom=5,
+            pitch=0,
+        )
+
+        # Crear el mapa con pydeck
+        r = pdk.Deck(
+            layers=[geojson_layer],
+            initial_view_state=view_state,
+            tooltip={"text": "{nombre}"},
+        )
+
+        # Mostrar el mapa
+        st.pydeck_chart(r)
+else:
+    st.write("Selecciona una fuente de datos válida para continuar.")
