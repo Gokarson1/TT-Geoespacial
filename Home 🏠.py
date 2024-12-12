@@ -10,7 +10,7 @@ img = Image.open("img/GeoHub1.jpeg")
 #img= Image.open("img/GeoHub1.jpeg")
 st.set_page_config(
     page_title="GeoHub",
-    layout="centered",
+    layout="wide",
     page_icon=img
 )
 

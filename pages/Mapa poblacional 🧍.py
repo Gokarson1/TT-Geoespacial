@@ -48,7 +48,7 @@ try:
         folium.Marker([40, -100], popup="Marcador inicial").add_to(m)
 
             # Mostrar el mapa en Streamlit
-            st_folium(m, width=1500, height=600)
+        st_folium(m, width=1500, height=600)
 
         # Análisis descriptivo
         st.header("Análisis Descriptivo")

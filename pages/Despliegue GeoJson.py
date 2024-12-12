@@ -11,21 +11,20 @@ st.set_page_config(
     page_icon=img
 )
 
-# Sidebar para seleccionar mapa base
-st.sidebar.header("Configuración del mapa")
-map_base = st.sidebar.selectbox(
-    "Seleccione el mapa base",
-    ["OpenStreetMap", "OpenTopoMap", "Esri World Imagery"]
-)
+# Función para cargar las capas desde el archivo JSON
+def load_layers_from_json(file_path):
+    try:
+        with open(file_path, "r") as f:
+            layers = json.load(f)
+        return layers
+    except Exception as e:
+        st.error(f"Error al cargar el archivo JSON: {e}")
+        return []
 
 # Generador de código HTML + JavaScript para Leaflet
-def render_map_js(map_base, geojson_data):
-    tiles_dict = {
-        "OpenStreetMap": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        "OpenTopoMap": "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-        "Esri World Imagery": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-    }
-    tile_url = tiles_dict[map_base]
+# Actualización para permitir capas seleccionables
+def render_map_js(geojson_data, selected_layer_url=None):
+    tile_url = selected_layer_url if selected_layer_url else "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 
     geojson_script = f"""
     var geojsonData = {json.dumps(geojson_data)};
@@ -74,9 +73,9 @@ def render_map_js(map_base, geojson_data):
 st.title("Visualización de Archivos GeoJSON")
 st.write("Sube un archivo GeoJSON para visualizar sus datos geoespaciales en el mapa.")
 
+# Intentar cargar el archivo GeoJSON inicial (archivo de prueba)
 test_gjson_path = "data/Test_Geojson.geojson"
 
-# Intentar cargar el archivo GeoJSON inicial (archivo de prueba)
 try:
     with open(test_gjson_path, "r") as file:
         initial_geojson_data = json.load(file)
@@ -90,24 +89,31 @@ geojson_data = initial_geojson_data  # Usar datos iniciales por defecto
 
 if geojson_upload:
     try:
-        # Cargar los datos del archivo subido
         geojson_data = json.load(geojson_upload)
         st.success("Archivo GeoJSON cargado correctamente.")
-        
-        # Mostrar los datos crudos (opcional)
         if st.checkbox("Mostrar datos crudos del GeoJSON"):
             st.json(geojson_data)
     except Exception as e:
         st.error(f"Error al procesar el archivo GeoJSON: {e}")
 
+# Cargar las capas desde el archivo JSON
+layers = load_layers_from_json("data/layers.json")
+selected_layer_url = None
+
+if layers:
+    layer_names = [layer["name"] for layer in layers]
+    selected_layer_name = st.selectbox("Selecciona una capa base", layer_names)
+    selected_layer = next(layer for layer in layers if layer["name"] == selected_layer_name)
+    selected_layer_url = selected_layer.get("url", "")
+    st.write(f"Capa seleccionada: {selected_layer_name}")
+
 # Renderizar el mapa
 if geojson_data:
-    components.html(render_map_js(map_base, geojson_data), height=550)
-    # Manual de cargar GeoJson
+    components.html(render_map_js(geojson_data, selected_layer_url), height=550)
     st.markdown("""
     ### Manual de uso
     - **Sube un archivo geojson con información de carga válida.**
-    - Asegurate de usar un archivo valido para el despliegue del json
+    - Asegúrate de usar un archivo válido para el despliegue del json
     - Opcionalmente, si no posee un archivo geojson, puedes ir al apartado de mapa interactivo
                 
     :red[*Cabe recalcar que el mapa carga un archivo como demostración, la subida de archivos es opcional.*]
