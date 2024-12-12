@@ -34,7 +34,7 @@ if uploaded_file is not None:
             folium.Marker([40, -100], popup="Marcador inicial").add_to(m)
 
             # Mostrar el mapa en Streamlit
-            st_folium(m, width=600, height=500)
+            st_folium(m, width=1500, height=600)
 
             # Análisis descriptivo
             st.header("Análisis Descriptivo")
