@@ -1,16 +1,30 @@
 import streamlit as st
 import pandas as pd
 import folium
-from PIL import Image
 from streamlit_folium import st_folium
 from folium.plugins import HeatMap, Fullscreen
+from PIL import Image
 
+img = Image.open("img/GeoHub1.jpeg")
 # Configuración de la página
-img = Image.open("img/logo.png")
-st.set_page_config(layout="wide", page_icon=img)
+st.set_page_config(
+    page_title="Mapa poblacional",
+    layout="wide",
+    page_icon=img
+)
 
 # Título de la aplicación
 st.title("Población en el Mundo")
+with st.expander("Manual de Uso: Mapa poblacional"):
+        st.write("""
+        ### Manual de uso
+        - **Sube un archivo CSV con la información poblacional.**
+        - Los campos esperados son: `name,sov_a3,latitude,longitude,pop_max,region`
+        - Opcionalmente, puedes encontrar varios archivos en la web para adaptarlos a este formato.
+        - Una vez cargado, se desplegará el mapa de calor, y en la parte inferior datos estadísticos del despliegue.
+                    
+        :red[*Cabe recalcar que el mapa carga un archivo como demostración, la subida de archivos es opcional.*]
+        """)  
 
 # Path del archivo CSV de demostración
 test_csv_path = "data/us_cities.csv"
@@ -76,14 +90,3 @@ try:
         st.error("El archivo CSV debe contener las columnas 'latitude', 'longitude', y 'pop_max'.")
 except Exception as e:
     st.error(f"Error al leer el archivo CSV: {e}")
-
-# Manual de uso CSV
-st.markdown("""
-### Manual de uso
-- **Sube un archivo CSV con la información poblacional.**
-- Los campos esperados son: `name,sov_a3,latitude,longitude,pop_max,region`
-- Opcionalmente, puedes encontrar varios archivos en la web para adaptarlos a este formato.
-- Una vez cargado, se desplegará el mapa de calor, y en la parte inferior datos estadísticos del despliegue.
-            
-:red[*Cabe recalcar que el mapa carga un archivo como demostración, la subida de archivos es opcional.*]
-""")

@@ -4,7 +4,7 @@ import streamlit.components.v1 as components
 from PIL import Image
 
 # Configuración de la página
-img = Image.open("img/logo.png")
+img = Image.open("img/GeoHub1.jpeg")
 st.set_page_config(
     page_title="Visualización de Archivos GeoJSON",
     layout="wide",
@@ -71,6 +71,15 @@ def render_map_js(geojson_data, selected_layer_url=None):
 
 # Página principal
 st.title("Visualización de Archivos GeoJSON")
+with st.expander("Manual de Uso: Uso de geojson"):
+    st.write("""
+        ### Manual de uso
+        - **Sube un archivo geojson con información de carga válida.**
+        - Asegúrate de usar un archivo válido para el despliegue del json
+        - Opcionalmente, si no posee un archivo geojson, puedes ir al apartado de mapa interactivo
+                    
+        :red[*Cabe recalcar que el mapa carga un archivo como demostración, la subida de archivos es opcional.*]
+        """)
 st.write("Sube un archivo GeoJSON para visualizar sus datos geoespaciales en el mapa.")
 
 # Intentar cargar el archivo GeoJSON inicial (archivo de prueba)
@@ -110,13 +119,5 @@ if layers:
 # Renderizar el mapa
 if geojson_data:
     components.html(render_map_js(geojson_data, selected_layer_url), height=550)
-    st.markdown("""
-    ### Manual de uso
-    - **Sube un archivo geojson con información de carga válida.**
-    - Asegúrate de usar un archivo válido para el despliegue del json
-    - Opcionalmente, si no posee un archivo geojson, puedes ir al apartado de mapa interactivo
-                
-    :red[*Cabe recalcar que el mapa carga un archivo como demostración, la subida de archivos es opcional.*]
-    """)
 else:
     st.info("Carga un archivo GeoJSON válido para visualizar el mapa.")

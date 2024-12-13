@@ -2,13 +2,27 @@ import streamlit as st
 import pandas as pd
 import pydeck as pdk
 import json
+from PIL import Image
 
+img = Image.open("img/GeoHub1.jpeg")
 # Configuración de la página
-st.set_page_config(page_title="Mapa 3D de Santiago", layout="wide")
+st.set_page_config(
+    page_title="Mapa 3D",
+    layout="wide",
+    page_icon=img
+)
 
 # Título
 st.title("Visualización de edificios 3D en Santiago")
-
+with st.expander("Manual de Uso: SHP y CSV"):
+        st.write("""
+        ### Manual de uso
+        - **Sube un archivo geojson para la carga de datos.**
+        - Asegúrate de que el geojson sea válido.
+        - Una vez cargado, el mapa desplegará visualización 3D, del geojson ingresado.
+                    
+        :red[*Cabe recalcar que el mapa carga un archivo como demostración, la subida de archivos es opcional.*]
+        """)  
 # Subir archivo
 uploaded_file = st.file_uploader("Carga el archivo de edificios (GeoJSON)", type=["geojson"])
 
@@ -100,12 +114,3 @@ if uploaded_file:
         st.error("El archivo no contiene las columnas requeridas: geometry.coordinates, properties.height_m, properties.name.")
 else:
     st.info("Por favor, sube un archivo CSV para comenzar.")
-# Manual de uso CSV
-    st.markdown("""
-    ### Manual de uso
-    - **Sube un archivo geojson para la carga de datos.**
-    - Asegúrate de que el geojson sea válido.
-    - Una vez cargado, el mapa desplegará visualización 3D, del geojson ingresado.
-                
-    :red[*Cabe recalcar que el mapa carga un archivo como demostración, la subida de archivos es opcional.*]
-    """)

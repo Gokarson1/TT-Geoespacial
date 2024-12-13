@@ -5,7 +5,7 @@ import json
 import streamlit.components.v1 as components
 from PIL import Image
 
-img = Image.open("img/logo.png")
+img = Image.open("img/GeoHub1.jpeg")
 # Configuración de la página
 st.set_page_config(page_title=
      "Visualización de Datos Geoespaciales" ,
@@ -118,6 +118,16 @@ test_csv_path = "data/Mineras en sudamerica.csv"
 # Informacion inicial segun pagina
 if page == "Shapefile":
     st.header("Sube un archivo ShapeFile para visualizar.")
+    with st.expander("Manual de Uso: subida ShapeFile"):
+        st.write("""
+        ### Manual de uso
+        - **Sube un archivo Shapefile comprimido en formato ZIP.**
+        - El archivo debe incluir todos los componentes necesarios: `.shp`, `.shx`, `.dbf`, etc.
+        - Una vez cargado, el mapa se actualizará automáticamente para mostrar la geometría.
+        - Puedes usar las herramientas de maximización del mapa para ver detalles más específicos.
+                    
+        :red[*Cabe recalcar que el mapa carga un archivo como demostración, la subida de archivos es opcional.*]
+        """)  
 
     # Load test data (optional)
     test_geojson_data = load_test_data(test_shapefile_path)
@@ -139,19 +149,19 @@ if page == "Shapefile":
             st.error(f"Error al procesar el archivo Shapefile: {e}")
 
     components.html(render_map_js(map_base, geojson_data=geojson_data), height=550)
-    # Manual de uso SHP
-    st.markdown("""
-    ### Manual de uso
-    - **Sube un archivo Shapefile comprimido en formato ZIP.**
-    - El archivo debe incluir todos los componentes necesarios: `.shp`, `.shx`, `.dbf`, etc.
-    - Una vez cargado, el mapa se actualizará automáticamente para mostrar la geometría.
-    - Puedes usar las herramientas de maximización del mapa para ver detalles más específicos.
-                
-    :red[*Cabe recalcar que el mapa carga un archivo como demostración, la subida de archivos es opcional.*]
-    """)
 
 elif page == "CSV":
     st.header("Sube un archivo CSV con coordenadas para visualizar.")
+    with st.expander("Manual de Uso: subida de CSV"):
+        st.write("""
+        ### Manual de uso
+        - **Sube un archivo CSV con coordenadas.**
+        - Asegúrate de que el archivo tenga las columnas `lat` (latitud) y `lon` (longitud).
+        - Opcionalmente, puedes agregar una columna `Nombre` para personalizar las etiquetas de los marcadores.
+        - Una vez cargado, el mapa mostrará los puntos correspondientes.
+                    
+        :red[*Cabe recalcar que el mapa carga un archivo como demostración, la subida de archivos es opcional.*]
+        """)  
 
     test_markers = load_test_data(test_csv_path)
     csv_upload = st.file_uploader("Subir archivo CSV (opcional)", type=["csv"])
@@ -173,13 +183,3 @@ elif page == "CSV":
             st.error(f"No se pudo procesar el archivo CSV: {e}")
 
     components.html(render_map_js(map_base, markers=markers), height=550)
-    # Manual de uso CSV
-    st.markdown("""
-    ### Manual de uso
-    - **Sube un archivo CSV con coordenadas.**
-    - Asegúrate de que el archivo tenga las columnas `lat` (latitud) y `lon` (longitud).
-    - Opcionalmente, puedes agregar una columna `Nombre` para personalizar las etiquetas de los marcadores.
-    - Una vez cargado, el mapa mostrará los puntos correspondientes.
-                
-    :red[*Cabe recalcar que el mapa carga un archivo como demostración, la subida de archivos es opcional.*]
-    """)

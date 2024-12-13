@@ -4,9 +4,13 @@ from streamlit.components.v1 import html
 import json
 from PIL import Image
 
-# Cargar el logo
-img = Image.open("img/logo.png")
-st.set_page_config(layout="wide", page_icon=img)
+img = Image.open("img/GeoHub1.jpeg")
+# Configuración de la página
+st.set_page_config(
+    page_title="Mapa Interactivo",
+    layout="wide",
+    page_icon=img
+)
 
 # Función para cargar las capas desde el archivo JSON
 def load_layers_from_json(file_path):

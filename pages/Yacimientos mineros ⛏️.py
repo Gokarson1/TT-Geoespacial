@@ -6,7 +6,7 @@ from PIL import Image
 import unicodedata
 
 # Abrir la imagen del logo
-img = Image.open("img/logo.png")
+img = Image.open("img/GeoHub1.jpeg")
 
 # Configuración de la página
 st.set_page_config(
