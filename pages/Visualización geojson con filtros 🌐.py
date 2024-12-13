@@ -30,12 +30,23 @@ with st.expander("Manual de Uso"):
     - **Todos los registros**: `filter all`
     """)
 
+import unicodedata #Facilitar la busqueda
+
+# Función para normalizar texto (quitar tildes y convertir a minúsculas)
+def normalize_text(text):
+    if isinstance(text, str):
+        return unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('utf-8').lower()
+    return text  # Devuelve el texto tal cual si no es un string
+
 # Función para procesar el GeoJSON
 def process_geojson(geojson_data, query):
     try:
         # Cargar datos como DataFrame
         df = pd.json_normalize(geojson_data['features'])
         df = df.rename(columns=lambda x: x.replace('properties.', ''))  # Simplificar nombres de columnas
+
+        # Normalizar todas las columnas para búsqueda insensible
+        df = df.applymap(normalize_text)
 
         # Filtrado basado en la consulta
         if query.startswith("filter"):
@@ -45,8 +56,8 @@ def process_geojson(geojson_data, query):
                 # Extraer el campo y valores del filtro
                 field_values = query.replace("filter", "").strip()
                 field, values = field_values.split("=")
-                field = field.strip()
-                values = [v.strip().strip("'\"") for v in values.split("||")]
+                field = normalize_text(field.strip())  # Normalizar el nombre del campo
+                values = [normalize_text(v.strip().strip("'\"")) for v in values.split("||")]
 
                 # Verificar si el campo existe
                 if field in df.columns:
@@ -67,7 +78,7 @@ def process_geojson(geojson_data, query):
 
 # Cargar archivo GeoJSON por defecto
 try:
-    with open('data/Yacimientos Mineros.geojson', 'r', encoding='utf-8-sig') as file:
+    with open('data/RM Limite urbano.geojson', 'r', encoding='utf-8-sig') as file:
         base_geojson = json.load(file)
 except Exception as e:
     st.error(f"Hubo un problema al cargar la base de datos de Yacimientos Mineros: {e}")
@@ -77,13 +88,13 @@ except Exception as e:
 st.subheader("Seleccionar la fuente de datos")
 data_source = st.radio(
     "Elige la fuente de datos:",
-    ("Base de Yacimientos Mineros", "Cargar archivo GeoJSON personalizado")
+    ("Limite urbano de región Metropolitana", "Cargar archivo GeoJSON personalizado")
 )
 
 # Inicializar GeoJSON
 geojson_data = None
 
-if data_source == "Base de Yacimientos Mineros" and base_geojson:
+if data_source == "Limite urbano de región Metropolitana" and base_geojson:
     geojson_data = base_geojson
 elif data_source == "Cargar archivo GeoJSON personalizado":
     uploaded_file = st.file_uploader("Sube tu archivo GeoJSON", type=["geojson"])
@@ -114,9 +125,9 @@ if geojson_data:
 
         # Configuración del mapa centrado en Chile
         view_state = pdk.ViewState(
-            latitude=-35.6751,
-            longitude=-71.543,
-            zoom=5,
+            latitude=-33.45694,
+            longitude=-70.64827,
+            zoom=8,
             pitch=0,
         )
 
