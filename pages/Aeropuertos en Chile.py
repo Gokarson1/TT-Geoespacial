@@ -3,6 +3,7 @@ import geopandas as gpd
 import streamlit as st
 import leafmap.foliumap as leafmap
 import os
+import json
 from PIL import Image
 
 # Abrir la imagen del logo
@@ -15,7 +16,40 @@ st.set_page_config(
     page_icon=img
 )
 
-# Título de la página
+# Función para cargar las capas desde el archivo JSON
+def load_layers_from_json(file_path):
+    try:
+        with open(file_path, "r") as f:
+            layers = json.load(f)
+        return layers
+    except Exception as e:
+        st.error(f"Error al cargar el archivo JSON: {e}")
+        return []
+
+# Función para crear el mapa de Leafmap
+def create_map(selected_layer_url, layer_name, layer_attribution, gdf=None):
+    # Crear el mapa sin herramientas de dibujo ni exportación
+    m = leafmap.Map(center=[20.0, 0.0], zoom=2, draw_control=False, search_control=False)
+
+    # Verificar que la URL no esté vacía o mal formateada
+    if selected_layer_url:
+        try:
+            st.write(f"URL de la capa seleccionada: {selected_layer_url}")  # Mostrar la URL seleccionada
+            m.add_tile_layer(url=selected_layer_url, name=layer_name, attribution=layer_attribution)
+        except Exception as e:
+            st.error(f"Error al agregar la capa: {e}")
+            return None
+    else:
+        st.error("La URL de la capa seleccionada no es válida.")
+        return None
+    
+    # Si hay un GeoDataFrame, añadirlo al mapa
+    if gdf is not None:
+        m.add_gdf(gdf, layer_name="Aeropuertos")
+
+    return m
+
+# Título y descripción en la página
 st.title("Visualización de Aeropuertos en Chile")
 st.write("""
 Esta página permite explorar los **aeropuertos de Chile** a través de un mapa interactivo. Este visualizador tiene como objetivo proporcionar una forma sencilla de visualizar la distribución de los aeropuertos en Chile, lo cual es útil para estudios de transporte aéreo, geografía y planificación de infraestructura.
@@ -45,24 +79,34 @@ if os.path.exists(zip_file_path):
         gdf['lon'] = gdf.geometry.centroid.x
         gdf['lat'] = gdf.geometry.centroid.y
 
-        # Crear un mapa usando leafmap sin herramientas de búsqueda o dibujo
-        m = leafmap.Map(
-            center=[gdf['lat'].mean(), gdf['lon'].mean()],
-            zoom=6,
-            draw_control=False,
-            search_control=False
-        )
+        # Cargar las capas desde el archivo JSON
+        layers = load_layers_from_json("data/layers.json")
 
-        # Añadir los datos al mapa
-        m.add_gdf(gdf, layer_name="Aeropuertos")
+        # Mostrar un selector para elegir la capa
+        if layers:
+            layer_names = [layer["name"] for layer in layers]
+            selected_layer_name = st.selectbox("Selecciona una capa base", layer_names)
 
-        # Mostrar el mapa en Streamlit
-        st.subheader("Mapa de Aeropuertos")
-        m.to_streamlit(height=800)
+            # Encontrar la URL de la capa seleccionada
+            selected_layer = next(layer for layer in layers if layer["name"] == selected_layer_name)
+            selected_layer_url = selected_layer.get("url", "")
+            selected_layer_name = selected_layer.get("name", "")
+            selected_layer_attribution = selected_layer.get("attribution", "")
 
-        # Mostrar la tabla completa debajo del mapa
-        st.subheader("Datos de Aeropuertos")
-        st.write(gdf)
+            # Crear el mapa con la capa seleccionada y los aeropuertos
+            m = create_map(selected_layer_url, selected_layer_name, selected_layer_attribution, gdf=gdf)
+
+            # Verificar que el mapa se haya creado correctamente antes de renderizarlo
+            if m:
+                map_html = m.to_html()
+                st.components.v1.html(map_html, height=800)
+
+                # Mostrar la tabla completa debajo del mapa
+                st.subheader("Datos de Aeropuertos")
+                st.write(gdf)  # Mostrar la tabla con los datos
+
+        else:
+            st.warning("No se pudieron cargar las capas desde el archivo JSON.")
     else:
         st.error("No se encontró ningún archivo .shp en el archivo .zip.")
 else:
