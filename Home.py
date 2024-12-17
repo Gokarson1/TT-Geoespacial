@@ -20,11 +20,11 @@ st.sidebar.title("About")
 st.sidebar.info(
     """
     - Este es nuetro trabajo de titulo
-    - V0.0.9
+    - V1.0.0
     """
 )
 st.sidebar.image(img, width=150)  # Display image in the sidebar
-st.image("img/logo2.png", width=900)
+st.image("img/logo2.png", use_container_width=True)
 st.title(":gray[_Bienvenido a GeoHub_]")
 st.markdown("""
     La ***App de Visualización Geoespacial*** permite explorar y analizar datos geoespaciales de manera interactiva. 
@@ -47,6 +47,22 @@ with col2:
 with col3:
     st.markdown("**Infraestructura institucional en Magallanes**")
     st.image("img/home3.png")
+
+# Segunda fila con 3 columnas adicionales
+col4, col5, col6 = st.columns(3)
+
+with col4:
+    st.markdown("**Análisis de yacimientos mineros en el norte**")
+    st.image("img/home4.png", use_container_width=True)
+
+with col5:
+    st.markdown("**Aeropuertos en territorio nacional**")
+    st.image("img/home5.png", use_container_width=True)
+
+with col6:
+    st.markdown("**Limites urbanos de la provincia Chacabuco**")
+    st.image("img/home6.png", use_container_width=True)
+
 #crea el mapa
 #m = folium.Map(location=[-33.466, -70.597], zoom_start=10)
 
