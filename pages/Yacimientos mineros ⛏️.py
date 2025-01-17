@@ -95,10 +95,14 @@ try:
 
     # Crear la capa de mapa con los datos filtrados o completos
     if filtered_geojson:
+        # Verificar si ya existe información seleccionada en el estado
+        if "last_hovered" not in st.session_state:
+            st.session_state["last_hovered"] = None
+
         geojson_layer = pdk.Layer(
             "GeoJsonLayer",
             filtered_geojson,
-            pickable=True,
+            pickable=True,  # Habilitar interacción con los puntos
             stroked=True,
             filled=True,
             get_radius=500,
@@ -119,11 +123,14 @@ try:
         r = pdk.Deck(
             layers=[geojson_layer],
             initial_view_state=view_state,
-            tooltip={"text": "{nombre}"},
+            tooltip={
+                "html": "<b>Nombre:</b> {nombre}<br><b>Región:</b> {region}<br><b>Comuna:</b> {comuna}",
+                "style": {"color": "white", "backgroundColor": "black", "fontSize": "12px"}
+            },
         )
 
         # Mostrar el mapa
-        st.pydeck_chart(r)
+        st.pydeck_chart(r, use_container_width=True)
 
 except Exception as e:
     st.error(f"Hubo un problema al cargar el archivo GeoJSON: {e}")
