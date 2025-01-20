@@ -20,7 +20,7 @@ with st.expander("Manual de Uso: Mapa 3D"):
     st.write("""
         ### Manual de uso
         - **Sube un archivo geojson para la carga de datos.**
-        - Asegúrate de que el geojson sea válido.
+        - Asegúrate de que el geojson sea válido (Coordenadas, altura, nombre).
         - Una vez cargado, el mapa desplegará visualización 3D del geojson ingresado.
 
         :red[*Cabe recalcar que el mapa carga un archivo como demostración. La subida de archivos es opcional.*]

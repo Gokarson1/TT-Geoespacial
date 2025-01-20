@@ -124,7 +124,7 @@ try:
             layers=[geojson_layer],
             initial_view_state=view_state,
             tooltip={
-                "html": "<b>Nombre:</b> {nombre}<br><b>Región:</b> {region}<br><b>Comuna:</b> {comuna}",
+                "html": "<b>Nombre:</b> {nombre}<br><b>Región:</b> {region}<br><b>Comuna:</b> {comuna}<br><b>Actividad:</b> {actividad_}<br><b>Recurso/s:</b> {grupo_recu}<br><b>Ficha:</b> {url_pdf}",
                 "style": {"color": "white", "backgroundColor": "black", "fontSize": "12px"}
             },
         )
