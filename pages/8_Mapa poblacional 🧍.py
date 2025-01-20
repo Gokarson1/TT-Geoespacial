@@ -59,7 +59,7 @@ try:
         folium.LayerControl().add_to(m)
 
         # Añadir un marcador con un popup
-        folium.Marker([40, -100], popup="Marcador inicial").add_to(m)
+        #folium.Marker([40, -100], popup="Marcador inicial").add_to(m)
 
             # Mostrar el mapa en Streamlit
         st_folium(m, width=1500, height=600)
