@@ -43,12 +43,20 @@ def create_map(selected_layer_url, layer_name, layer_attribution):
 
 # Título y descripción en la página
 st.title("Mapa Interactivo con Herramientas de Dibujo y Selección de Capas")
-st.markdown("""
-Esta herramienta te permite interactuar con un mapa en blanco, 
-dibujar formas (líneas, polígonos, marcadores, círculos, etc.), 
-y visualizar los datos en formato GeoJSON. 
-Puedes seleccionar capas base mediante un buscador.
-""")
+with st.expander("Manual de Uso: Mapa Interactivo"):
+    st.write("""
+        ### Manual de uso
+        - **Dibuja puntos, líneas o polígonos directamente en el mapa interactivo.**
+        - Puedes exportar las geometrías creadas al formato GeoJSON para su posterior uso.
+        - Alterna entre diferentes capas base del mapa para mejorar la visualización según tus necesidades.
+        - Utiliza la herramienta de medición para:
+          - Calcular distancias lineales entre puntos.
+          - Medir áreas de polígonos dibujados.
+        - Realiza búsquedas específicas escribiendo el nombre de un lugar para facilitar la navegación dentro del mapa.
+                    
+        :red[*Nota: El mapa proporciona herramientas de edición intuitivas para que puedas personalizar tu experiencia fácilmente.*]
+    """)
+
 
 # Cargar las capas desde el archivo JSON
 layers = load_layers_from_json("data/layers.json")
@@ -75,4 +83,4 @@ else:
     st.warning("No se pudieron cargar las capas desde el archivo JSON.")
 
 # Instrucciones para exportar
-st.info("Use las herramientas de dibujo para crear formas en el mapa. Luego, haga clic en el botón de descarga en la esquina superior derecha del mapa para exportar los datos en formato GeoJSON.")
+st.info("Use las herramientas de dibujo para crear formas en el mapa. Luego, haga clic en el botón de exportar en la esquina superior derecha del mapa para exportar los datos en formato GeoJSON.")
