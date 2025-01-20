@@ -84,8 +84,8 @@ try:
         st.table(data.nlargest(10, 'pop_max')[['name', 'pop_max']])
 
         # Visualización adicional
-        st.header("Visualización Adicional")
-        st.map(data[['latitude', 'longitude']])
+        #st.header("Visualización Adicional")
+        #st.map(data[['latitude', 'longitude']])
     else:
         st.error("El archivo CSV debe contener las columnas 'latitude', 'longitude', y 'pop_max'.")
 except Exception as e:
