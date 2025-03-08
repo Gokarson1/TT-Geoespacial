@@ -3,7 +3,7 @@ import json
 import streamlit.components.v1 as components
 from PIL import Image
 
-# Configuración de la página
+# Configuración de la página dasdasddas
 img = Image.open("img/GeoHub1.jpeg")
 st.set_page_config(
     page_title="Visualización de Archivos GeoJSON",
